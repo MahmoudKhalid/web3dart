@@ -461,12 +461,16 @@ class Web3Client {
     );
 
     for (int index = 0; index < historicalBlocks; index++) {
-      history.add({
-        'blockNumber': feeHistory['oldestBlock'] + BigInt.from(index),
-        'baseFeePerGas': feeHistory['baseFeePerGas'][index],
-        'gasUsedRatio': feeHistory['gasUsedRatio'][index],
-        'priorityFeePerGas': feeHistory['reward'][index],
-      });
+      try {
+        history.add({
+          'blockNumber': feeHistory['oldestBlock'] + BigInt.from(index),
+          'baseFeePerGas': feeHistory['baseFeePerGas'][index],
+          'gasUsedRatio': feeHistory['gasUsedRatio'][index],
+          'priorityFeePerGas': feeHistory['reward'][index],
+        });
+      } on RangeError {
+        break;
+      }
     }
 
     final BlockInformation latestBlock = await getBlockInformation(
