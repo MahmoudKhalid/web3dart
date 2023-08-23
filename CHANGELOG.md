@@ -1,3 +1,7 @@
+## 2.4.2
+
+* Fix: index missing for getGasInEIP1559 method
+
 ## 2.4.1
 
 * Update dependencies.
