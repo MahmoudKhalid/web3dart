@@ -62,13 +62,19 @@ class EtherAmount {
   /// Constructs an amount of Ether by a unit and its amount. [amount] can
   /// either be a base10 string, an int, double or a BigInt.
   factory EtherAmount.fromUnitAndValue(EtherUnit unit, dynamic amount) {
+    BigInt parsedAmount;
+
     if (amount is String) {
-      amount = double.parse(amount);
+      parsedAmount = BigInt.parse(amount);
+    } else if (amount is num) {
+      parsedAmount = BigInt.from(amount);
+    } else if (amount is BigInt) {
+      parsedAmount = amount;
+    } else {
+      throw ArgumentError('Invalid type, must be string, num or BigInt');
     }
 
-    return EtherAmount.inWei(
-      BigInt.from(amount.toDouble() * _factors[unit]!.toDouble()),
-    );
+    return EtherAmount.inWei(parsedAmount * _factors[unit]!);
   }
 
   /// Gets the value of this amount in the specified unit as a whole number.
