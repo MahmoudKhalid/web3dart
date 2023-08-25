@@ -1,26 +1,28 @@
+import 'package:decimal/decimal.dart';
+
 enum EtherUnit {
-  ///Wei, the smallest and atomic amount of Ether
+  /// Wei, the smallest and atomic amount of Ether
   wei,
 
-  ///kwei, 1000 wei
+  /// Kwei, 1000 wei
   kwei,
 
-  ///Mwei, one million wei
+  /// Mwei, one million wei
   mwei,
 
-  ///Gwei, one billion wei. Typically a reasonable unit to measure gas prices.
+  /// Gwei, one billion wei. Typically a reasonable unit to measure gas prices.
   gwei,
 
-  ///szabo, 10^12 wei or 1 μEther
+  /// Szabo, 10^12 wei or 1 μEther
   szabo,
 
-  ///finney, 10^15 wei or 1 mEther
+  /// Finney, 10^15 wei or 1 mEther
   finney,
 
-  ///1 Ether
+  /// 1 Ether
   ether,
 
-  ///in decimals values
+  /// Decimals values
   decimals1,
   decimals2,
   decimals3,
@@ -55,38 +57,63 @@ enum EtherUnit {
 /// Utility class to easily convert amounts of Ether into different units of
 /// quantities.
 class EtherAmount {
-  const EtherAmount.inWei(this._value);
+  const EtherAmount.inWei(this._wei);
 
   EtherAmount.zero() : this.inWei(BigInt.zero);
 
-  /// Constructs an amount of Ether by a unit and its amount. [amount] can
-  /// either be a base10 string, an int, double or a BigInt.
-  factory EtherAmount.fromUnitAndValue(EtherUnit unit, dynamic amount) {
-    BigInt parsedAmount;
+  /// Constructs an amount of Ether by a unit and its amount.
+  factory EtherAmount.fromInt(EtherUnit unit, int amount) {
+    final Decimal decimalAmount = Decimal.fromInt(amount);
+    final Decimal wei = decimalAmount * Decimal.fromBigInt(_factors[unit]!);
 
-    if (amount is String) {
-      parsedAmount = BigInt.parse(amount);
-    } else if (amount is num) {
-      parsedAmount = BigInt.from(amount);
-    } else if (amount is BigInt) {
-      parsedAmount = amount;
-    } else {
-      throw ArgumentError('Invalid type, must be string, num or BigInt');
-    }
-
-    return EtherAmount.inWei(parsedAmount * _factors[unit]!);
+    return EtherAmount.inWei(wei.toBigInt());
   }
+
+  /// Constructs an amount of Ether by a unit and its amount.
+  factory EtherAmount.fromBigInt(EtherUnit unit, BigInt amount) {
+    final Decimal decimalAmount = Decimal.fromBigInt(amount);
+    final Decimal wei = decimalAmount * Decimal.fromBigInt(_factors[unit]!);
+
+    return EtherAmount.inWei(wei.toBigInt());
+  }
+
+  /// Constructs an amount of Ether by a unit and its amount.
+  factory EtherAmount.fromBase10String(EtherUnit unit, String amount) {
+    final Decimal decimalAmount = Decimal.parse(amount);
+    final Decimal wei = decimalAmount * Decimal.fromBigInt(_factors[unit]!);
+
+    return EtherAmount.inWei(wei.toBigInt());
+  }
+
+  final BigInt _wei;
+
+  BigInt get getInWei => _wei;
+
+  Decimal get getInEther => getValueInUnit(EtherUnit.ether);
 
   /// Gets the value of this amount in the specified unit as a whole number.
   /// **WARNING**: For all units except for [EtherUnit.wei], this method will
   /// discard the remainder occurring in the division, making it unsuitable for
   /// calculations or storage. You should store and process amounts of ether by
   /// using a BigInt storing the amount in wei.
-  BigInt getValueInUnitBI(EtherUnit unit) => _value ~/ _factors[unit]!;
+  Decimal getValueInUnit(EtherUnit unit) {
+    final Decimal decimalAmount = Decimal.fromBigInt(_wei);
+    return (decimalAmount / Decimal.fromBigInt(_factors[unit]!)).toDecimal();
+  }
 
   /// Gets the value of this amount in the specified decimals int as a whole number.
-  BigInt getValueInDecimalsBI(int decimals) =>
-      getValueInUnitBI(getUintDecimals(decimals));
+  Decimal getValueInDecimals(int decimals) {
+    return getValueInUnit(getUintDecimals(decimals));
+  }
+
+  /// Gets Uint of decimals by decimals int
+  static EtherUnit getUintDecimals(int decimals) {
+    for (EtherUnit uint in EtherUnit.values) {
+      if (uint.name == 'decimals$decimals') return uint;
+    }
+
+    throw Exception('invalid $decimals value of decimals must be 1 to 29');
+  }
 
   static final Map<EtherUnit, BigInt> _factors = {
     EtherUnit.wei: BigInt.one,
@@ -126,37 +153,6 @@ class EtherAmount {
     EtherUnit.decimals28: BigInt.from(10).pow(28),
     EtherUnit.decimals29: BigInt.from(10).pow(29),
   };
-
-  final BigInt _value;
-
-  BigInt get getInWei => _value;
-  BigInt get getInEther => getValueInUnitBI(EtherUnit.ether);
-
-  /// Gets the value of this amount in the specified unit. **WARNING**: Due to
-  /// rounding errors, the return value of this function is not reliable,
-  /// especially for larger amounts or smaller units. While it can be used to
-  /// display the amount of ether in a human-readable format, it should not be
-  /// used for anything else.
-  double getValueInUnit(EtherUnit unit) {
-    final factor = _factors[unit]!;
-    final value = _value ~/ factor;
-    final remainder = _value.remainder(factor);
-
-    return value.toInt() + (remainder.toInt() / factor.toInt());
-  }
-
-  /// Gets the value of this amount in the specified decimals int.
-  double getValueInDecimals(int decimals) =>
-      getValueInUnit(getUintDecimals(decimals));
-
-  /// Gets Uint of decimals by decimals int
-  static EtherUnit getUintDecimals(int decimals) {
-    for (EtherUnit uint in EtherUnit.values) {
-      if (uint.name == 'decimals$decimals') return uint;
-    }
-
-    throw Exception('invalid $decimals value of decimals must be 1 to 29');
-  }
 
   @override
   String toString() {
