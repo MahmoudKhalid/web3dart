@@ -1,3 +1,8 @@
+## 2.4.4
+
+* EtherAmount upgrade
+* Fix: BlockInformation.isSupportEIP1559
+
 ## 2.4.3
 
 * Fix: EtherAmount was not precision
