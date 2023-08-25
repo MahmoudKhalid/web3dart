@@ -1,3 +1,7 @@
+## 2.4.3
+
+* Fix: EtherAmount was not precision
+
 ## 2.4.2
 
 * Fix: index missing for getGasInEIP1559 method
