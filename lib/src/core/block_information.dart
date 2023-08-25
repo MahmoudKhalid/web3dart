@@ -24,5 +24,5 @@ class BlockInformation {
 
   final EtherAmount? baseFeePerGas;
   final DateTime timestamp;
-  bool get isSupportEIP1559 => baseFeePerGas != null;
+  bool get isSupportEIP1559 => (baseFeePerGas?.getInWei.toInt() ?? 0) > 0;
 }
