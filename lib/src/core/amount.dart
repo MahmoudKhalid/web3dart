@@ -78,6 +78,13 @@ class EtherAmount {
   }
 
   /// Constructs an amount of Ether by a unit and its amount.
+  factory EtherAmount.fromDecimal(EtherUnit unit, Decimal amount) {
+    final Decimal wei = amount * Decimal.fromBigInt(_factors[unit]!);
+
+    return EtherAmount.inWei(wei.toBigInt());
+  }
+
+  /// Constructs an amount of Ether by a unit and its amount.
   factory EtherAmount.fromBase10String(EtherUnit unit, String amount) {
     final Decimal decimalAmount = Decimal.parse(amount);
     final Decimal wei = decimalAmount * Decimal.fromBigInt(_factors[unit]!);
