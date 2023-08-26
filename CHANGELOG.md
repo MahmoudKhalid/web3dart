@@ -1,3 +1,8 @@
+## 2.4.5
+
+* Added EtherAmount.fromDecimal and improvement code
+* Use decimal package instead double for getGasInEIP1559 method
+
 ## 2.4.4
 
 * EtherAmount upgrade
