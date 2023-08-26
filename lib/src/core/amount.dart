@@ -63,32 +63,25 @@ class EtherAmount {
 
   /// Constructs an amount of Ether by a unit and its amount.
   factory EtherAmount.fromInt(EtherUnit unit, int amount) {
-    final Decimal decimalAmount = Decimal.fromInt(amount);
-    final Decimal wei = decimalAmount * Decimal.fromBigInt(_factors[unit]!);
-
+    final Decimal wei = Decimal.fromInt(amount) * _factors[unit]!.toDecimal();
     return EtherAmount.inWei(wei.toBigInt());
   }
 
   /// Constructs an amount of Ether by a unit and its amount.
   factory EtherAmount.fromBigInt(EtherUnit unit, BigInt amount) {
-    final Decimal decimalAmount = Decimal.fromBigInt(amount);
-    final Decimal wei = decimalAmount * Decimal.fromBigInt(_factors[unit]!);
-
+    final Decimal wei = amount.toDecimal() * _factors[unit]!.toDecimal();
     return EtherAmount.inWei(wei.toBigInt());
   }
 
   /// Constructs an amount of Ether by a unit and its amount.
   factory EtherAmount.fromDecimal(EtherUnit unit, Decimal amount) {
-    final Decimal wei = amount * Decimal.fromBigInt(_factors[unit]!);
-
+    final Decimal wei = amount * _factors[unit]!.toDecimal();
     return EtherAmount.inWei(wei.toBigInt());
   }
 
   /// Constructs an amount of Ether by a unit and its amount.
   factory EtherAmount.fromBase10String(EtherUnit unit, String amount) {
-    final Decimal decimalAmount = Decimal.parse(amount);
-    final Decimal wei = decimalAmount * Decimal.fromBigInt(_factors[unit]!);
-
+    final Decimal wei = Decimal.parse(amount) * _factors[unit]!.toDecimal();
     return EtherAmount.inWei(wei.toBigInt());
   }
 
@@ -104,8 +97,7 @@ class EtherAmount {
   /// calculations or storage. You should store and process amounts of ether by
   /// using a BigInt storing the amount in wei.
   Decimal getValueInUnit(EtherUnit unit) {
-    final Decimal decimalAmount = Decimal.fromBigInt(_wei);
-    return (decimalAmount / Decimal.fromBigInt(_factors[unit]!)).toDecimal();
+    return (_wei.toDecimal() / _factors[unit]!.toDecimal()).toDecimal();
   }
 
   /// Gets the value of this amount in the specified decimals int as a whole number.
