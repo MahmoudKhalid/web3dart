@@ -483,10 +483,9 @@ class Web3Client {
         return e['priorityFeePerGas'][index] as BigInt;
       }).toList();
       final BigInt priorityFee = allPriorityFee.max;
-      final BigInt estimatedGas = BigInt.from(
-        0.9 * baseFee.toDouble() + priorityFee.toDouble(),
-      );
-      final BigInt maxFee = BigInt.from(1.5 * estimatedGas.toDouble());
+      final Decimal estimatedGas =
+          Decimal.parse('0.9') * baseFee.toDecimal() + priorityFee.toDecimal();
+      final BigInt maxFee = (Decimal.parse('1.5') * estimatedGas).toBigInt();
 
       if (priorityFee >= maxFee || priorityFee <= BigInt.zero) {
         throw Exception('Max fee must exceed the priority fee');
@@ -495,7 +494,7 @@ class Web3Client {
       result[rates[index]] = EIP1559Information(
         maxPriorityFeePerGas: EtherAmount.inWei(priorityFee),
         maxFeePerGas: EtherAmount.inWei(maxFee),
-        estimatedGas: estimatedGas,
+        estimatedGas: estimatedGas.toBigInt(),
       );
     }
 
